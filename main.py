@@ -44,5 +44,13 @@ async def on_ready():
         print("an error as occured:", e)
 
 
+@bot.tree.error
+async def on_error(
+    interaction: discord.Interaction[discord.Client],
+    error: discord.app_commands.AppCommandError | Exception,
+) -> None:
+    await interaction.response.send_message(f"```\n{error}\n```")
+
+
 startup()
 bot.run(TOKEN)
