@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 
 import discord
 
+from model.Bundle import Bundle
 from model.Permission import Permission
 
 
@@ -25,6 +26,7 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 
 def startup():
     Permission.init()
+    Bundle.init()
 
 
 @bot.event
