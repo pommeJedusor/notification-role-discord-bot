@@ -6,6 +6,7 @@ import discord
 
 from model.Bundle import Bundle
 from model.Permission import Permission
+from model.Serie import Serie
 
 
 if not os.path.exists("db"):
@@ -27,6 +28,7 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 def startup():
     Permission.init()
     Bundle.init()
+    Serie.init()
 
 
 @bot.event
