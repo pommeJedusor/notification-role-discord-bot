@@ -1,0 +1,10 @@
+# python
+**/__pycache__/
+.venv/
+.env
+
+# temp datas
+db
+
+# dev
+notes
