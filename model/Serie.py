@@ -4,6 +4,8 @@ from typing import List
 
 from dotenv import load_dotenv
 
+from model.BundleSerie import BundleSerie
+
 load_dotenv()
 DATABASE = os.getenv("DATABASE")
 if DATABASE is None:
@@ -47,6 +49,7 @@ class Serie:
         finally:
             if cursor:
                 cursor.close()
+            BundleSerie.deleteBySerie(server_id, role_id)
 
     @classmethod
     def getByServerAndName(cls, server_id: int, serie_name: str) -> List["Serie"]:
@@ -56,12 +59,12 @@ class Serie:
             cursor = conn.cursor()
             cursor.execute(sql, (server_id, serie_name))
             results = cursor.fetchall()
-            permissions = []
+            series = []
             for result in results:
                 id, server_id, role_id, serie_name, serie_icon = result
-                permission = cls(server_id, role_id, serie_name, serie_icon)
-                permissions.append(permission)
-            return permissions
+                serie = cls(server_id, role_id, serie_name, serie_icon)
+                series.append(serie)
+            return series
         except Exception as e:
             raise e
         finally:
@@ -76,12 +79,12 @@ class Serie:
             cursor = conn.cursor()
             cursor.execute(sql, (server_id,))
             results = cursor.fetchall()
-            permissions = []
+            series = []
             for result in results:
                 id, server_id, role_id, serie_name, serie_icon = result
-                permission = cls(server_id, role_id, serie_name, serie_icon)
-                permissions.append(permission)
-            return permissions
+                serie = cls(server_id, role_id, serie_name, serie_icon)
+                series.append(serie)
+            return series
         except Exception as e:
             raise e
         finally:
@@ -96,12 +99,12 @@ class Serie:
             cursor = conn.cursor()
             cursor.execute(sql)
             results = cursor.fetchall()
-            permissions = []
+            series = []
             for result in results:
                 id, server_id, role_id, serie_name, serie_icon = result
-                permission = cls(server_id, role_id, serie_name, serie_icon)
-                permissions.append(permission)
-            return permissions
+                serie = cls(server_id, role_id, serie_name, serie_icon)
+                series.append(serie)
+            return series
         except Exception as e:
             raise e
         finally:

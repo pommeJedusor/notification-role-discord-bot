@@ -4,6 +4,8 @@ from typing import List
 
 from dotenv import load_dotenv
 
+from model.BundleSerie import BundleSerie
+
 load_dotenv()
 DATABASE = os.getenv("DATABASE")
 if DATABASE is None:
@@ -49,6 +51,7 @@ class Bundle:
         finally:
             if cursor:
                 cursor.close()
+            BundleSerie.deleteByBundle(server_id, role_id)
 
     @classmethod
     def getByServerAndName(cls, server_id: int, bundle_name: str) -> List["Bundle"]:
@@ -58,12 +61,12 @@ class Bundle:
             cursor = conn.cursor()
             cursor.execute(sql, (server_id, bundle_name))
             results = cursor.fetchall()
-            permissions = []
+            bundles = []
             for result in results:
                 id, server_id, role_id, bundle_name, bundle_icon = result
-                permission = cls(server_id, role_id, bundle_name, bundle_icon)
-                permissions.append(permission)
-            return permissions
+                bundle = cls(server_id, role_id, bundle_name, bundle_icon)
+                bundles.append(bundle)
+            return bundles
         except Exception as e:
             raise e
         finally:
@@ -78,12 +81,12 @@ class Bundle:
             cursor = conn.cursor()
             cursor.execute(sql, (server_id,))
             results = cursor.fetchall()
-            permissions = []
+            bundles = []
             for result in results:
                 id, server_id, role_id, bundle_name, bundle_icon = result
-                permission = cls(server_id, role_id, bundle_name, bundle_icon)
-                permissions.append(permission)
-            return permissions
+                bundle = cls(server_id, role_id, bundle_name, bundle_icon)
+                bundles.append(bundle)
+            return bundles
         except Exception as e:
             raise e
         finally:
@@ -98,12 +101,12 @@ class Bundle:
             cursor = conn.cursor()
             cursor.execute(sql)
             results = cursor.fetchall()
-            permissions = []
+            bundles = []
             for result in results:
                 id, server_id, role_id, bundle_name, bundle_icon = result
-                permission = cls(server_id, role_id, bundle_name, bundle_icon)
-                permissions.append(permission)
-            return permissions
+                bundle = cls(server_id, role_id, bundle_name, bundle_icon)
+                bundles.append(bundle)
+            return bundles
         except Exception as e:
             raise e
         finally:

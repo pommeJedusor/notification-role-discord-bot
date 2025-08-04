@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 import discord
 
 from model.Bundle import Bundle
+from model.BundleSerie import BundleSerie
 from model.Permission import Permission
 from model.Serie import Serie
 
@@ -29,6 +30,7 @@ def startup():
     Permission.init()
     Bundle.init()
     Serie.init()
+    BundleSerie.init()
 
 
 @bot.event
