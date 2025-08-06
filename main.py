@@ -8,6 +8,7 @@ from model.Bundle import Bundle
 from model.BundleSerie import BundleSerie
 from model.Permission import Permission
 from model.Serie import Serie
+from model.UserSerie import UserSerie
 
 
 if not os.path.exists("db"):
@@ -31,6 +32,7 @@ def startup():
     Bundle.init()
     Serie.init()
     BundleSerie.init()
+    UserSerie.init()
 
 
 @bot.event
