@@ -4,15 +4,15 @@ from dotenv import load_dotenv
 
 import discord
 
+if not os.path.exists("db"):
+    os.makedirs("db")
+
 from model.Bundle import Bundle
 from model.BundleSerie import BundleSerie
 from model.Permission import Permission
 from model.Serie import Serie
 from model.UserSerie import UserSerie
-
-
-if not os.path.exists("db"):
-    os.makedirs("db")
+from model.UserBundle import UserBundle
 
 
 load_dotenv()
@@ -33,6 +33,7 @@ def startup():
     Serie.init()
     BundleSerie.init()
     UserSerie.init()
+    UserBundle.init()
 
 
 @bot.event

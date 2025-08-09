@@ -5,6 +5,7 @@ from discord.ext import commands
 
 from model.Permission import Permission
 from model.Serie import Serie
+from model.UserSerie import UserSerie
 
 
 class CogSeries(commands.Cog):
@@ -56,6 +57,7 @@ class CogSeries(commands.Cog):
 
         assert type(interaction.guild) is Guild
         Serie.delete(interaction.guild.id, role.id)
+        UserSerie.deleteBySerie(interaction.guild.id, role.id)
         await role.delete()
         await interaction.response.send_message(
             f"le role `{role.name}` a bien été supprimé",

@@ -5,6 +5,8 @@ from typing import List
 from dotenv import load_dotenv
 
 from model.BundleSerie import BundleSerie
+from model.UserBundle import UserBundle
+from model.UserSerie import UserSerie
 
 load_dotenv()
 DATABASE = os.getenv("DATABASE")
@@ -39,19 +41,49 @@ class Bundle:
                 cursor.close()
 
     @staticmethod
-    def delete(server_id: int, role_id: int):
+    def delete(server_id: int, role_id: int) -> list[tuple[int, int]]:
+        """
+        return list of tuple: (user_id, serie_id) for each serie that was attributed for a user
+        by the bundle so that we can check if we should remove the discord role
+        """
         cursor = None
         try:
             sql = "DELETE FROM bundles WHERE `server_id` = ? AND `role_id` = ?"
             cursor = conn.cursor()
             cursor.execute(sql, (server_id, role_id))
             conn.commit()
+            users_and_series: list[tuple[int, int]] = (
+                UserSerie.getUsersAndSeriesByBundle(server_id, role_id)
+            )
+            UserBundle.deleteByBundle(server_id, role_id)
+            UserSerie.deleteByBundle(server_id, role_id)
+            return users_and_series
         except Exception as e:
             raise e
         finally:
             if cursor:
                 cursor.close()
             BundleSerie.deleteByBundle(server_id, role_id)
+
+    @classmethod
+    def getByServerAndRoleId(cls, server_id: int, role_id: int) -> List["Bundle"]:
+        cursor = None
+        try:
+            sql = "SELECT * FROM bundles WHERE `server_id` = ? AND `role_id` = ?"
+            cursor = conn.cursor()
+            cursor.execute(sql, (server_id, role_id))
+            results = cursor.fetchall()
+            bundles = []
+            for result in results:
+                id, server_id, role_id, bundle_name, bundle_icon = result
+                bundle = cls(server_id, role_id, bundle_name, bundle_icon)
+                bundles.append(bundle)
+            return bundles
+        except Exception as e:
+            raise e
+        finally:
+            if cursor:
+                cursor.close()
 
     @classmethod
     def getByServerAndName(cls, server_id: int, bundle_name: str) -> List["Bundle"]:

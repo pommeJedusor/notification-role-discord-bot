@@ -4,6 +4,7 @@ from discord.ext import commands
 
 from model.Permission import Permission
 from model.Bundle import Bundle
+from model.UserBundle import UserBundle
 
 
 class CogBundles(commands.Cog):
@@ -49,6 +50,7 @@ class CogBundles(commands.Cog):
 
         assert type(interaction.guild) is Guild
         Bundle.delete(interaction.guild.id, role.id)
+        UserBundle.deleteByBundle(interaction.guild.id, role.id)
         await role.delete()
         await interaction.response.send_message(
             f"le role `{role.name}` a bien été supprimé",
