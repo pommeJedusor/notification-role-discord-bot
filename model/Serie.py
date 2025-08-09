@@ -72,6 +72,26 @@ class Serie:
                 cursor.close()
 
     @classmethod
+    def getByServerAndRoleId(cls, server_id: int, role_id: int) -> List["Serie"]:
+        cursor = None
+        try:
+            sql = "SELECT * FROM series WHERE `server_id` = ? AND `role_id` = ?"
+            cursor = conn.cursor()
+            cursor.execute(sql, (server_id, role_id))
+            results = cursor.fetchall()
+            series = []
+            for result in results:
+                id, server_id, role_id, serie_name, serie_icon = result
+                serie = cls(server_id, role_id, serie_name, serie_icon)
+                series.append(serie)
+            return series
+        except Exception as e:
+            raise e
+        finally:
+            if cursor:
+                cursor.close()
+
+    @classmethod
     def getByServer(cls, server_id: int) -> List["Serie"]:
         cursor = None
         try:

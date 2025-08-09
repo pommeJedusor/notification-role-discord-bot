@@ -2,6 +2,7 @@ import discord
 from discord import Guild, app_commands
 from discord.ext import commands
 
+from model.Serie import Serie
 from model.UserSerie import UserSerie
 from model.Permission import Permission
 
@@ -28,9 +29,15 @@ class CogUsersSeries(commands.Cog):
                 "vous n'avez pas les permissions requises pour effectuer cette action",
                 ephemeral=True,
             )
-        # TODO check if role is in the bot
 
         assert type(interaction.guild) is Guild
+
+        if not Serie.getByServerAndRoleId(interaction.guild.id, serie.id):
+            return await interaction.response.send_message(
+                "le role que vous avez entrez ne correspond à aucune série",
+                ephemeral=True,
+            )
+
         if not user.get_role(serie.id):
             await user.add_roles(serie)
 
@@ -58,9 +65,15 @@ class CogUsersSeries(commands.Cog):
                 "vous n'avez pas les permissions requises pour effectuer cette action",
                 ephemeral=True,
             )
-        # TODO check if role is in the bot
 
         assert type(interaction.guild) is Guild
+
+        if not Serie.getByServerAndRoleId(interaction.guild.id, serie.id):
+            return await interaction.response.send_message(
+                "le role que vous avez entrez ne correspond à aucune série",
+                ephemeral=True,
+            )
+
         if user.get_role(serie.id):
             await user.remove_roles(serie)
 
@@ -87,9 +100,15 @@ class CogUsersSeries(commands.Cog):
                 "vous n'avez pas les permissions requises pour effectuer cette action",
                 ephemeral=True,
             )
-        # TODO check if role is in the bot
 
         assert type(interaction.guild) is Guild
+
+        if not Serie.getByServerAndRoleId(interaction.guild.id, serie.id):
+            return await interaction.response.send_message(
+                "le role que vous avez entrez ne correspond à aucune série",
+                ephemeral=True,
+            )
+
         if user.get_role(serie.id):
             await user.remove_roles(serie)
 
