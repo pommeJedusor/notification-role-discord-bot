@@ -1,3 +1,4 @@
+from typing import Optional
 import discord
 from discord import Guild, app_commands
 from discord.ext import commands
@@ -14,7 +15,13 @@ class CogSeries(commands.Cog):
         name="ajouter_serie",
         description="Créer un serie dans lequel ajouter des séries",
     )
-    async def add_serie(self, interaction: discord.Interaction, name: str, icon: str):
+    async def add_serie(
+        self,
+        interaction: discord.Interaction,
+        name: str,
+        icon: str,
+        role: Optional[discord.Role],
+    ):
         if not Permission.is_user_powerfull(interaction):
             return await interaction.response.send_message(
                 "vous n'avez pas les permissions requises pour effectuer cette action",
@@ -28,9 +35,9 @@ class CogSeries(commands.Cog):
                 ephemeral=True,
             )
 
-        role = await interaction.guild.create_role(name=name, mentionable=True)
+        if not role:
+            role = await interaction.guild.create_role(name=name, mentionable=True)
         Serie.save(interaction.guild.id, role.id, name, icon)
-        # Permission.save(interaction.guild.id, role.id)
         await interaction.response.send_message(
             f"nom: {name}\nicon: {icon}",
         )
