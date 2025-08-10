@@ -72,7 +72,7 @@ class Serie:
                 cursor.close()
 
     @classmethod
-    def getByServerAndRoleId(cls, server_id: int, role_id: int) -> List["Serie"]:
+    def getByServerAndRoleId(cls, server_id: int, role_id: int) -> "Serie":
         cursor = None
         try:
             sql = "SELECT * FROM series WHERE `server_id` = ? AND `role_id` = ?"
@@ -84,7 +84,7 @@ class Serie:
                 id, server_id, role_id, serie_name, serie_icon = result
                 serie = cls(server_id, role_id, serie_name, serie_icon)
                 series.append(serie)
-            return series
+            return series[0]
         except Exception as e:
             raise e
         finally:

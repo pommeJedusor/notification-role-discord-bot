@@ -94,6 +94,26 @@ class UserBundle:
             if cursor:
                 cursor.close()
 
+    @classmethod
+    def getByBundle(cls, server_id: int, bundle_id: int) -> List["UserBundle"]:
+        cursor = None
+        try:
+            sql = "SELECT * FROM user_has_bundle WHERE `server_id` = ? AND `bundle_id` = ?"
+            cursor = conn.cursor()
+            cursor.execute(sql, (server_id, bundle_id))
+            results = cursor.fetchall()
+            users_bundles = []
+            for result in results:
+                id, server_id, user_id, bundle_id = result
+                user_bundles = cls(server_id, user_id, bundle_id)
+                users_bundles.append(user_bundles)
+            return users_bundles
+        except Exception as e:
+            raise e
+        finally:
+            if cursor:
+                cursor.close()
+
     @staticmethod
     def init():
         try:

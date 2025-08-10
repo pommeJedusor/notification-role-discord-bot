@@ -114,7 +114,7 @@ class UserSerie:
             cursor = conn.cursor()
             cursor.execute(sql, (server_id, bundle_id))
             results = cursor.fetchall()
-            assert type(results) is list[int]
+            assert type(results) is list
             return results
         except Exception as e:
             raise e
