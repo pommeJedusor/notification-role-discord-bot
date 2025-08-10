@@ -44,6 +44,18 @@ class CogUsersBundles(commands.Cog):
 
         UserBundle.save(interaction.guild.id, user.id, bundle.id)
         UserSerie.addBundleSeriesToUser(interaction.guild.id, bundle.id, user.id)
+
+        # add discord roles for series in bundle
+        users_series = UserSerie.getByUserAndBundle(
+            interaction.guild.id, user.id, bundle.id
+        )
+        series = [
+            interaction.guild.get_role(user_serie.serie_role_id)
+            for user_serie in users_series
+        ]
+        series = [serie for serie in series if serie]
+        await user.add_roles(*series)
+
         await interaction.response.send_message(
             f"le bundle {bundle.name} a été ajouté au user: {user.name}",
         )
@@ -80,9 +92,15 @@ class CogUsersBundles(commands.Cog):
 
         UserBundle.delete(interaction.guild.id, user.id, bundle.id)
         # check wether he should still have the series and remove the discord role if such
-        user_series = UserSerie.getByUserAndBundle(
+        users_series = UserSerie.getByUserAndBundle(
             interaction.guild.id, user.id, bundle.id
         )
+        series = [
+            interaction.guild.get_role(user_serie.serie_role_id)
+            for user_serie in users_series
+        ]
+        series = [serie for serie in series if serie]
+        await user.remove_roles(*series)
         UserSerie.deleteByBundleAndUser(interaction.guild.id, bundle.id, user.id)
         await interaction.response.send_message(
             f"le bundle `{bundle.name}` a bien été retiré du user {user.name}",
