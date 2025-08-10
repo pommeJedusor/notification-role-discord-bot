@@ -49,10 +49,13 @@ class CogUsersBundles(commands.Cog):
         users_series = UserSerie.getByUserAndBundle(
             interaction.guild.id, user.id, bundle.id
         )
-        series = [
-            interaction.guild.get_role(user_serie.serie_role_id)
-            for user_serie in users_series
-        ]
+        series = []
+        for user_serie in users_series:
+            global_user_serie = UserSerie.getByUserAndSerie(
+                interaction.guild.id, user.id, user_serie.serie_role_id
+            )
+            if not global_user_serie or global_user_serie.has_role:
+                series.append(interaction.guild.get_role(user_serie.serie_role_id))
         series = [serie for serie in series if serie]
         await user.add_roles(*series)
 
@@ -95,13 +98,16 @@ class CogUsersBundles(commands.Cog):
         users_series = UserSerie.getByUserAndBundle(
             interaction.guild.id, user.id, bundle.id
         )
+        UserSerie.deleteByBundleAndUser(interaction.guild.id, bundle.id, user.id)
         series = [
             interaction.guild.get_role(user_serie.serie_role_id)
             for user_serie in users_series
+            if not UserSerie.getByUserAndSerie(
+                interaction.guild.id, user.id, user_serie.serie_role_id
+            )
         ]
         series = [serie for serie in series if serie]
         await user.remove_roles(*series)
-        UserSerie.deleteByBundleAndUser(interaction.guild.id, bundle.id, user.id)
         await interaction.response.send_message(
             f"le bundle `{bundle.name}` a bien été retiré du user {user.name}",
         )

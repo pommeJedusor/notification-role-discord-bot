@@ -74,10 +74,13 @@ class CogUsersSeries(commands.Cog):
                 ephemeral=True,
             )
 
-        if user.get_role(serie.id):
+        UserSerie.delete(interaction.guild.id, user.id, serie.id, 0)
+
+        if user.get_role(serie.id) and not UserSerie.getByUserAndSerie(
+            interaction.guild.id, user.id, serie.id
+        ):
             await user.remove_roles(serie)
 
-        UserSerie.delete(interaction.guild.id, user.id, serie.id, 0)
         await interaction.response.send_message(
             f"la série `{serie.name}` a bien été retiré du user {user.name}",
         )

@@ -61,5 +61,48 @@ async def on_error(
     await interaction.response.send_message(f"```\n{error}\n```")
 
 
+@bot.event
+async def on_member_update(before: discord.Member, after: discord.Member):
+    if len(before.roles) == len(after.roles):
+        return
+    previous_roles = set([role.id for role in before.roles])
+    new_roles = set([role.id for role in after.roles])
+    if len(before.roles) > len(after.roles):
+        for role in new_roles:
+            previous_roles.remove(role)
+        removed_role = previous_roles.pop()
+        serie_of_role = Serie.getByServerAndRoleId(before.guild.id, removed_role)
+        bundle_of_role = Bundle.getByServerAndRoleId(before.guild.id, removed_role)
+        if not serie_of_role and not bundle_of_role:
+            return
+        if bundle_of_role:
+            UserBundle.delete(before.guild.id, before.id, bundle_of_role.id_role)
+            # check wether he should still have the series and remove the discord role if such
+            users_series = UserSerie.getByUserAndBundle(
+                before.guild.id, before.id, bundle_of_role.id_role
+            )
+            UserSerie.deleteByBundleAndUser(
+                before.guild.id, bundle_of_role.id_role, before.id
+            )
+            series = [
+                before.guild.get_role(user_serie.serie_role_id)
+                for user_serie in users_series
+                if not UserSerie.getByUserAndSerie(
+                    before.guild.id, before.id, user_serie.serie_role_id
+                )
+            ]
+            series = [serie for serie in series if serie]
+            await after.remove_roles(*series)
+        elif serie_of_role:
+            UserSerie.delete(before.guild.id, before.id, serie_of_role.id_role, 0)
+            user_serie = UserSerie.getByUserAndSerie(
+                before.guild.id, before.id, serie_of_role.id_role
+            )
+            if user_serie:
+                UserSerie.save(
+                    before.guild.id, before.id, serie_of_role.id_role, False, 0
+                )
+
+
 startup()
 bot.run(TOKEN)

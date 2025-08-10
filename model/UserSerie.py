@@ -145,6 +145,32 @@ class UserSerie:
                 cursor.close()
 
     @classmethod
+    def getByUserAndSerie(
+        cls, server_id: int, user_id: int, serie_id: int
+    ) -> "UserSerie|None":
+        cursor = None
+        try:
+            sql = "SELECT id, server_id, user_id, serie_role_id, MIN(has_role), bundle_id FROM user_has_serie WHERE `server_id` = ? AND `user_id` = ? AND `serie_role_id` = ? GROUP BY serie_role_id"
+            cursor = conn.cursor()
+            cursor.execute(sql, (server_id, user_id, serie_id))
+            results = cursor.fetchall()
+            users_series = []
+            for result in results:
+                id, server_id, user_id, serie_role_id, has_role, bundle_id = result
+                users_serie = cls(
+                    server_id, user_id, serie_role_id, bool(has_role), bundle_id
+                )
+                users_series.append(users_serie)
+            if not users_series:
+                return None
+            return users_series[0]
+        except Exception as e:
+            raise e
+        finally:
+            if cursor:
+                cursor.close()
+
+    @classmethod
     def getByUserAndBundle(
         cls, server_id: int, user_id: int, bundle_id: int
     ) -> list["UserSerie"]:
@@ -177,7 +203,7 @@ class UserSerie:
         ]
         cursor = None
         try:
-            sql = "INSERT INTO `user_has_serie`(`server_id`, `user_id`, `serie_role_id`, `has_role`, `bundle_id`) VALUES(?,?,?,?,?);"
+            sql = "INSERT OR IGNORE INTO `user_has_serie`(`server_id`, `user_id`, `serie_role_id`, `has_role`, `bundle_id`) VALUES(?,?,?,?,?);"
             cursor = conn.cursor()
             cursor.executemany(sql, rows)
             conn.commit()
