@@ -103,6 +103,41 @@ async def on_member_update(before: discord.Member, after: discord.Member):
                     before.guild.id, before.id, serie_of_role.id_role, False, 0
                 )
 
+    elif len(before.roles) < len(after.roles):
+        for role in previous_roles:
+            new_roles.remove(role)
+        added_role = new_roles.pop()
+        serie_of_role = Serie.getByServerAndRoleId(before.guild.id, added_role)
+        bundle_of_role = Bundle.getByServerAndRoleId(before.guild.id, added_role)
+        if serie_of_role:
+            if not Serie.getByServerAndRoleId(before.guild.id, serie_of_role.id_role):
+                return
+
+            UserSerie.delete(before.guild.id, before.id, serie_of_role.id_role, 0)
+            UserSerie.save(before.guild.id, before.id, serie_of_role.id_role, True, 0)
+        elif bundle_of_role:
+            if not Bundle.getByServerAndRoleId(before.guild.id, bundle_of_role.id_role):
+                return
+
+            UserBundle.save(before.guild.id, before.id, bundle_of_role.id_role)
+            UserSerie.addBundleSeriesToUser(
+                before.guild.id, bundle_of_role.id_role, before.id
+            )
+
+            # add discord roles for series in bundle
+            users_series = UserSerie.getByUserAndBundle(
+                before.guild.id, before.id, bundle_of_role.id_role
+            )
+            series = []
+            for user_serie in users_series:
+                global_user_serie = UserSerie.getByUserAndSerie(
+                    before.guild.id, before.id, user_serie.serie_role_id
+                )
+                if not global_user_serie or global_user_serie.has_role:
+                    series.append(before.guild.get_role(user_serie.serie_role_id))
+            series = [serie for serie in series if serie]
+            await before.add_roles(*series)
+
 
 startup()
 bot.run(TOKEN)
