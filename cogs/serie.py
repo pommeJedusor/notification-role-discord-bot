@@ -3,6 +3,7 @@ import discord
 from discord import Guild, app_commands
 from discord.ext import commands
 
+from cogs import react_channel
 from model.Permission import Permission
 from model.Serie import Serie
 from model.UserSerie import UserSerie
@@ -42,6 +43,7 @@ class CogSeries(commands.Cog):
         await interaction.response.send_message(
             f"nom: {name}\nicon: {icon}",
         )
+        await react_channel.actualise_role_messages(self.bot, interaction.guild.id)
 
     @app_commands.command(
         name="retirer_serie",
@@ -62,6 +64,7 @@ class CogSeries(commands.Cog):
         await interaction.response.send_message(
             f"le role `{role.name}` a bien été supprimé",
         )
+        await react_channel.actualise_role_messages(self.bot, interaction.guild.id)
 
     @app_commands.command(
         name="voir_series",
