@@ -28,6 +28,8 @@ intents = discord.Intents.default()
 intents.members = True
 bot = commands.Bot(command_prefix="!", intents=intents)
 
+users_roles_to_not_act_upon = set()
+
 
 def startup():
     Permission.init()
@@ -74,6 +76,9 @@ async def on_member_update(before: discord.Member, after: discord.Member):
         for role in new_roles:
             previous_roles.remove(role)
         removed_role = previous_roles.pop()
+        if f"{before.id}-{removed_role}" in users_roles_to_not_act_upon:
+            users_roles_to_not_act_upon.remove(f"{before.id}-{removed_role}")
+            return
         serie_of_role = Serie.getByServerAndRoleId(before.guild.id, removed_role)
         bundle_of_role = Bundle.getByServerAndRoleId(before.guild.id, removed_role)
         if not serie_of_role and not bundle_of_role:
@@ -110,6 +115,9 @@ async def on_member_update(before: discord.Member, after: discord.Member):
         for role in previous_roles:
             new_roles.remove(role)
         added_role = new_roles.pop()
+        if f"{before.id}-{added_role}" in users_roles_to_not_act_upon:
+            users_roles_to_not_act_upon.remove(f"{before.id}-{added_role}")
+            return
         serie_of_role = Serie.getByServerAndRoleId(before.guild.id, added_role)
         bundle_of_role = Bundle.getByServerAndRoleId(before.guild.id, added_role)
         if serie_of_role:
@@ -138,6 +146,9 @@ async def on_member_update(before: discord.Member, after: discord.Member):
                 )
                 if not global_user_serie or global_user_serie.has_role:
                     series.append(before.guild.get_role(user_serie.serie_role_id))
+                    users_roles_to_not_act_upon.add(
+                        f"{before.id}-{user_serie.serie_role_id}"
+                    )
             series = [serie for serie in series if serie]
             await before.add_roles(*series)
 
