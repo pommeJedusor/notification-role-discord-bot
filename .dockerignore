@@ -1,0 +1,15 @@
+# python
+**/__pycache__/
+.venv/
+.env
+.env.ini
+
+# temp datas
+db
+
+# dev
+notes
+
+# git
+.git/
+.gitignore

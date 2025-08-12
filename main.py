@@ -4,11 +4,10 @@ from dotenv import load_dotenv
 
 import discord
 
-from model.ReactChannel import ReactChannel
-
 if not os.path.exists("db"):
     os.makedirs("db")
 
+from model.ReactChannel import ReactChannel
 from model.Bundle import Bundle
 from model.BundleSerie import BundleSerie
 from model.Permission import Permission
