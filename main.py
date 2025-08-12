@@ -4,6 +4,8 @@ from dotenv import load_dotenv
 
 import discord
 
+from model.ReactChannel import ReactChannel
+
 if not os.path.exists("db"):
     os.makedirs("db")
 
@@ -34,6 +36,7 @@ def startup():
     BundleSerie.init()
     UserSerie.init()
     UserBundle.init()
+    ReactChannel.init()
 
 
 @bot.event
