@@ -142,5 +142,56 @@ async def on_member_update(before: discord.Member, after: discord.Member):
             await before.add_roles(*series)
 
 
+@bot.event
+async def on_raw_reaction_remove(payload: discord.RawReactionActionEvent):
+    if payload.guild_id == None:
+        return
+    guild = bot.get_guild(payload.guild_id)
+    if guild == None:
+        return
+    member = guild.get_member(payload.user_id)
+    if member == None:
+        return
+
+    emoji = payload.emoji
+    series = Serie.getByIcon(payload.guild_id, emoji.name)
+    bundle = Bundle.getByIcon(payload.guild_id, emoji.name)
+    if series:
+        serie = series[0]
+        role = guild.get_role(serie.id_role)
+        if not role:
+            return
+        await member.remove_roles(role)
+    elif bundle:
+        role = guild.get_role(bundle.id_role)
+        if not role:
+            return
+        await member.remove_roles(role)
+
+
+@bot.event
+async def on_raw_reaction_add(payload: discord.RawReactionActionEvent):
+    if payload.guild_id == None or payload.member == None:
+        return
+    guild = bot.get_guild(payload.guild_id)
+    if guild == None:
+        return
+
+    emoji = payload.emoji
+    series = Serie.getByIcon(payload.guild_id, emoji.name)
+    bundle = Bundle.getByIcon(payload.guild_id, emoji.name)
+    if series:
+        serie = series[0]
+        role = guild.get_role(serie.id_role)
+        if not role:
+            return
+        await payload.member.add_roles(role)
+    elif bundle:
+        role = guild.get_role(bundle.id_role)
+        if not role:
+            return
+        await payload.member.add_roles(role)
+
+
 startup()
 bot.run(TOKEN)

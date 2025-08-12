@@ -66,6 +66,28 @@ class Bundle:
             BundleSerie.deleteByBundle(server_id, role_id)
 
     @classmethod
+    def getByIcon(cls, server_id: int, bundle_icon: str) -> "Bundle|None":
+        cursor = None
+        try:
+            sql = "SELECT * FROM bundles WHERE `server_id` = ? AND `bundle_icon` = ?"
+            cursor = conn.cursor()
+            cursor.execute(sql, (server_id, bundle_icon))
+            results = cursor.fetchall()
+            bundles = []
+            for result in results:
+                id, server_id, role_id, bundle_name, bundle_icon = result
+                bundle = cls(server_id, role_id, bundle_name, bundle_icon)
+                bundles.append(bundle)
+            if not bundles:
+                return None
+            return bundles[0]
+        except Exception as e:
+            raise e
+        finally:
+            if cursor:
+                cursor.close()
+
+    @classmethod
     def getByServerAndRoleId(cls, server_id: int, role_id: int) -> "Bundle|None":
         cursor = None
         try:

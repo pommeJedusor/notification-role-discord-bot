@@ -52,6 +52,26 @@ class Serie:
             BundleSerie.deleteBySerie(server_id, role_id)
 
     @classmethod
+    def getByIcon(cls, server_id: int, serie_icon: str) -> List["Serie"]:
+        cursor = None
+        try:
+            sql = "SELECT * FROM series WHERE `server_id` = ? AND `serie_icon` = ?"
+            cursor = conn.cursor()
+            cursor.execute(sql, (server_id, serie_icon))
+            results = cursor.fetchall()
+            series = []
+            for result in results:
+                id, server_id, role_id, serie_name, serie_icon = result
+                serie = cls(server_id, role_id, serie_name, serie_icon)
+                series.append(serie)
+            return series
+        except Exception as e:
+            raise e
+        finally:
+            if cursor:
+                cursor.close()
+
+    @classmethod
     def getByServerAndName(cls, server_id: int, serie_name: str) -> List["Serie"]:
         cursor = None
         try:
