@@ -4,6 +4,7 @@ from discord import Guild, app_commands
 from discord.ext import commands
 
 from cogs import react_channel
+from model.Bundle import Bundle
 from model.Permission import Permission
 from model.Serie import Serie
 from model.UserSerie import UserSerie
@@ -33,7 +34,17 @@ class CogSeries(commands.Cog):
         assert type(interaction.guild) is Guild
         if Serie.getByServerAndName(interaction.guild.id, name):
             return await interaction.response.send_message(
-                "le rôle existe déjà",
+                "la série existe déjà",
+                ephemeral=True,
+            )
+        if role and Serie.getByServerAndRoleId(interaction.guild.id, role.id):
+            return await interaction.response.send_message(
+                "le role est déjà utilisé pour une série",
+                ephemeral=True,
+            )
+        if role and Bundle.getByServerAndRoleId(interaction.guild.id, role.id):
+            return await interaction.response.send_message(
+                "le role est déjà utilisé pour un bundle",
                 ephemeral=True,
             )
 
@@ -51,13 +62,19 @@ class CogSeries(commands.Cog):
     )
     async def remove_serie(self, interaction: discord.Interaction, role: discord.Role):
         if not Permission.is_user_powerfull(interaction):
-            await interaction.response.send_message(
+            return await interaction.response.send_message(
                 "vous n'avez pas les permissions requises pour effectuer cette action",
                 ephemeral=True,
             )
-            return
 
         assert type(interaction.guild) is Guild
+
+        if not Serie.getByServerAndRoleId(interaction.guild.id, role.id):
+            return await interaction.response.send_message(
+                "le role ne correspond à aucune série",
+                ephemeral=True,
+            )
+
         Serie.delete(interaction.guild.id, role.id)
         UserSerie.deleteBySerie(interaction.guild.id, role.id)
         await role.delete()

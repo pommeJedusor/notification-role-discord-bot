@@ -2,6 +2,7 @@ import discord
 from discord import Guild, app_commands
 from discord.ext import commands
 
+from model.Bundle import Bundle
 from model.BundleSerie import BundleSerie
 from model.Serie import Serie
 from model.UserBundle import UserBundle
@@ -30,6 +31,15 @@ class CogBundlesSeries(commands.Cog):
             )
 
         assert type(interaction.guild) is Guild
+
+        if not Bundle.getByServerAndRoleId(interaction.guild.id, bundle.id):
+            return await interaction.response.send_message(
+                "le rôle du bundle ne correspond à aucun bundle", ephemeral=True
+            )
+        elif not Serie.getByServerAndRoleId(interaction.guild.id, serie.id):
+            return await interaction.response.send_message(
+                "le rôle de la série ne correspond à aucune série", ephemeral=True
+            )
 
         BundleSerie.save(interaction.guild.id, bundle.id, serie.id)
 
@@ -65,13 +75,22 @@ class CogBundlesSeries(commands.Cog):
         bundle: discord.Role,
     ):
         if not Permission.is_user_powerfull(interaction):
-            await interaction.response.send_message(
+            return await interaction.response.send_message(
                 "vous n'avez pas les permissions requises pour effectuer cette action",
                 ephemeral=True,
             )
-            return
 
         assert type(interaction.guild) is Guild
+
+        if not Bundle.getByServerAndRoleId(interaction.guild.id, bundle.id):
+            return await interaction.response.send_message(
+                "le rôle du bundle ne correspond à aucun bundle", ephemeral=True
+            )
+        elif not Serie.getByServerAndRoleId(interaction.guild.id, serie.id):
+            return await interaction.response.send_message(
+                "le rôle de la série ne correspond à aucune série", ephemeral=True
+            )
+
         BundleSerie.delete(interaction.guild.id, bundle.id, serie.id)
         users_series = UserSerie.getUsersAndSeriesByBundle(
             interaction.guild.id, bundle.id
@@ -101,18 +120,24 @@ class CogBundlesSeries(commands.Cog):
         self, interaction: discord.Interaction, bundle_role: discord.Role
     ):
         if not Permission.is_user_powerfull(interaction):
-            await interaction.response.send_message(
+            return await interaction.response.send_message(
                 "vous n'avez pas les permissions requises pour effectuer cette action",
                 ephemeral=True,
             )
-            return
 
         assert type(interaction.guild) is Guild
+
+        if not Bundle.getByServerAndRoleId(interaction.guild.id, bundle_role.id):
+            return await interaction.response.send_message(
+                "le rôle ne correspond à aucun bundle", ephemeral=True
+            )
+
         bundles_series = BundleSerie.getByBundle(interaction.guild.id, bundle_role.id)
         series = [
             Serie.getByServerAndRoleId(interaction.guild.id, bundle_serie.serie_role_id)
             for bundle_serie in bundles_series
         ]
+        series = [serie for serie in series if serie]
 
         response = "les series:\n"
         response += "\n".join(

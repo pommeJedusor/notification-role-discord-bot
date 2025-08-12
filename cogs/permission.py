@@ -17,11 +17,10 @@ class CogPermissions(commands.Cog):
         self, interaction: discord.Interaction, role: discord.Role
     ):
         if not Permission.is_user_powerfull(interaction):
-            await interaction.response.send_message(
+            return await interaction.response.send_message(
                 "vous n'avez pas les permissions requises pour effectuer cette action",
                 ephemeral=True,
             )
-            return
 
         assert type(interaction.guild) is Guild
         Permission.save(interaction.guild.id, role.id)
@@ -37,11 +36,10 @@ class CogPermissions(commands.Cog):
         self, interaction: discord.Interaction, role: discord.Role
     ):
         if not Permission.is_user_powerfull(interaction):
-            await interaction.response.send_message(
+            return await interaction.response.send_message(
                 "vous n'avez pas les permissions requises pour effectuer cette action",
                 ephemeral=True,
             )
-            return
 
         assert type(interaction.guild) is Guild
         Permission.delete(interaction.guild.id, role.id)
@@ -55,11 +53,10 @@ class CogPermissions(commands.Cog):
     )
     async def see_permissions(self, interaction: discord.Interaction):
         if not Permission.is_user_powerfull(interaction):
-            await interaction.response.send_message(
+            return await interaction.response.send_message(
                 "vous n'avez pas les permissions requises pour effectuer cette action",
                 ephemeral=True,
             )
-            return
 
         assert type(interaction.guild) is Guild
         permissions = Permission.getByServer(interaction.guild.id)

@@ -39,10 +39,10 @@ class CogReactChannels(commands.Cog):
 
         assert type(interaction.guild) is Guild
         ReactChannel.save(interaction.guild.id, channel.id)
-        await actualise_role_messages(self.bot, interaction.guild.id)
         await interaction.edit_original_response(
             content=f"{channel.name} est désormais le salon pour ajouter les séries et bundles aux utilisateurs"
         )
+        await actualise_role_messages(self.bot, interaction.guild.id)
 
 
 async def actualise_role_messages(bot: commands.Bot, server_id: int):

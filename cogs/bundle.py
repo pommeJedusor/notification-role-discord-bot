@@ -6,6 +6,7 @@ from discord.ext import commands
 from cogs import react_channel
 from model.Permission import Permission
 from model.Bundle import Bundle
+from model.Serie import Serie
 from model.UserBundle import UserBundle
 
 
@@ -33,12 +34,19 @@ class CogBundles(commands.Cog):
         assert type(interaction.guild) is Guild
         if Bundle.getByServerAndName(interaction.guild.id, name):
             return await interaction.response.send_message(
-                "le rôle existe déjà",
+                "le bundle existe déjà",
                 ephemeral=True,
             )
 
         if not role:
             role = await interaction.guild.create_role(name=name, mentionable=True)
+        elif Serie.getByServerAndRoleId(
+            interaction.guild.id, role.id
+        ) or Bundle.getByServerAndRoleId(interaction.guild.id, role.id):
+            return await interaction.response.send_message(
+                "le rôle est déjà utilisé pour une série ou bundle",
+                ephemeral=True,
+            )
         Bundle.save(interaction.guild.id, role.id, name, icon)
         await interaction.response.send_message(
             f"nom: {name}\nicon: {icon}",
@@ -51,13 +59,19 @@ class CogBundles(commands.Cog):
     )
     async def remove_bundle(self, interaction: discord.Interaction, role: discord.Role):
         if not Permission.is_user_powerfull(interaction):
-            await interaction.response.send_message(
+            return await interaction.response.send_message(
                 "vous n'avez pas les permissions requises pour effectuer cette action",
                 ephemeral=True,
             )
-            return
 
         assert type(interaction.guild) is Guild
+
+        if not Bundle.getByServerAndRoleId(interaction.guild.id, role.id):
+            return await interaction.response.send_message(
+                "le rôle ne correspond à aucun bundle",
+                ephemeral=True,
+            )
+
         Bundle.delete(interaction.guild.id, role.id)
         UserBundle.deleteByBundle(interaction.guild.id, role.id)
         await role.delete()
@@ -72,11 +86,10 @@ class CogBundles(commands.Cog):
     )
     async def see_bundles(self, interaction: discord.Interaction):
         if not Permission.is_user_powerfull(interaction):
-            await interaction.response.send_message(
+            return await interaction.response.send_message(
                 "vous n'avez pas les permissions requises pour effectuer cette action",
                 ephemeral=True,
             )
-            return
 
         assert type(interaction.guild) is Guild
         bundles = Bundle.getByServer(interaction.guild.id)

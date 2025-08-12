@@ -21,11 +21,10 @@ class CogUsersSeries(commands.Cog):
             not Permission.is_user_powerfull(interaction)
             and not user.id == interaction.user.id
         ):
-            await interaction.response.send_message(
+            return await interaction.response.send_message(
                 "vous n'avez pas les permissions requises pour effectuer cette action",
                 ephemeral=True,
             )
-            return
 
         assert type(interaction.guild) is Guild
         series = UserSerie.getByUser(interaction.guild.id, user.id)
