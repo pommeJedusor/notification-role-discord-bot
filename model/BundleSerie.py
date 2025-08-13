@@ -76,6 +76,28 @@ class BundleSerie:
                 cursor.close()
 
     @classmethod
+    def getByBundleAndSerie(
+        cls, server_id: int, bundle_role_id: int, serie_role_id: int
+    ) -> "BundleSerie|None":
+        cursor = None
+        try:
+            sql = "SELECT * FROM bundle_has_serie WHERE `server_id` = ? AND `bundle_role_id` = ? AND `serie_role_id` = ?"
+            cursor = conn.cursor()
+            cursor.execute(sql, (server_id, bundle_role_id, serie_role_id))
+            results = cursor.fetchall()
+            bundles_series = []
+            for result in results:
+                id, server_id, bundle_role_id, serie_role_id = result
+                bundles_serie = cls(server_id, bundle_role_id, serie_role_id)
+                bundles_series.append(bundles_serie)
+            return bundles_series[0] if bundles_series else None
+        except Exception as e:
+            raise e
+        finally:
+            if cursor:
+                cursor.close()
+
+    @classmethod
     def getByBundle(cls, server_id: int, bundle_role_id: int) -> List["BundleSerie"]:
         cursor = None
         try:

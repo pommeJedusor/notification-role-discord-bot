@@ -40,6 +40,11 @@ class CogBundlesSeries(commands.Cog):
             return await interaction.response.send_message(
                 "le rôle de la série ne correspond à aucune série", ephemeral=True
             )
+        elif BundleSerie.getByBundleAndSerie(interaction.guild.id, bundle.id, serie.id):
+            return await interaction.response.send_message(
+                f"la série {serie.name} est déjà inclu dans le bundle {bundle.name}",
+                ephemeral=True,
+            )
 
         BundleSerie.save(interaction.guild.id, bundle.id, serie.id)
 
