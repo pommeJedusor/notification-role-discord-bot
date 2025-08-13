@@ -37,6 +37,11 @@ class CogBundles(commands.Cog):
                 "le bundle existe déjà",
                 ephemeral=True,
             )
+        if Bundle.getByIcon(interaction.guild.id, icon):
+            return await interaction.response.send_message(
+                "l'icon est déjà utilisé pour un autre bundle",
+                ephemeral=True,
+            )
 
         if not role:
             role = await interaction.guild.create_role(name=name, mentionable=True)
@@ -49,7 +54,7 @@ class CogBundles(commands.Cog):
             )
         Bundle.save(interaction.guild.id, role.id, name, icon)
         await interaction.response.send_message(
-            f"nom: {name}\nicon: {icon}",
+            f"nom: {name}\nicon: {icon}", ephemeral=True
         )
         await react_channel.actualise_role_messages(self.bot, interaction.guild.id)
 

@@ -37,6 +37,11 @@ class CogSeries(commands.Cog):
                 "la série existe déjà",
                 ephemeral=True,
             )
+        if Serie.getByIcon(interaction.guild.id, icon):
+            return await interaction.response.send_message(
+                "l'icon est déjà utilisé pour une autre série",
+                ephemeral=True,
+            )
         if role and Serie.getByServerAndRoleId(interaction.guild.id, role.id):
             return await interaction.response.send_message(
                 "le role est déjà utilisé pour une série",
@@ -52,7 +57,7 @@ class CogSeries(commands.Cog):
             role = await interaction.guild.create_role(name=name, mentionable=True)
         Serie.save(interaction.guild.id, role.id, name, icon)
         await interaction.response.send_message(
-            f"nom: {name}\nicon: {icon}",
+            f"nom: {name}\nicon: {icon}", ephemeral=True
         )
         await react_channel.actualise_role_messages(self.bot, interaction.guild.id)
 
